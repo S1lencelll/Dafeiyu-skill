@@ -1,0 +1,41 @@
+# ── 敏感配置：绝对不要提交 ──
+config.json
+config.json.bak*
+gemini.json
+*.pem
+*.key
+.credentials*
+
+# ── 运行时数据（含真实聊天记录 / 记忆 / 隐私）──
+state/
+logs/
+*.log
+memory/
+diary/
+inbox/
+stickers/
+gallery/
+gen/
+doc-tmp/
+asr/
+audio/
+worlds/
+
+# ── 产出物 ──
+*.pptx
+*.docx
+*.xlsx
+*.png
+*.jpg
+*.jpeg
+*.wav
+*.mp3
+*.mp4
+
+# ── 依赖与临时 ──
+node_modules/
+*.bak*
+*.tmp
+.DS_Store
+Thumbs.db
+tools.json

@@ -1,0 +1,37 @@
+{
+  "_readme": [
+    "qq-content 不维护独立配置：OneBot 端点直接复用 qq-bridge 的 config.json。",
+    "把本文件复制成 config.json 只是为了让 server.mjs 读到同样结构；",
+    "如果你已经把 qq-bridge 装好了，多数情况下什么都不用改，server.mjs 会去读它那份。",
+    "图片生成 / Gemini 这类可选能力单独放各自的 json（imagegen.json / gemini.json），见下。"
+  ],
+
+  "snowluma": {
+    "httpUrl": "http://127.0.0.1:3000",
+    "wsUrl": "ws://127.0.0.1:3001",
+    "accessToken": "YOUR_ONEBOT_ACCESS_TOKEN"
+  },
+
+  "ownerQQ": 0,
+
+  "_imagegen": "可选：不配就走 Pollinations 免费通道（每 45 秒 1 张）。支持 zhipu / siliconflow / ark / openai",
+  "imagegen": {
+    "provider": "",
+    "apiKey": "",
+    "proxy": "",
+    "dailyLimit": 20
+  },
+
+  "_gemini": "可选：需要能访问 generativelanguage.googleapis.com（国内要代理）。用于 qq_send_tts_voice 的 Gemini 音色",
+  "gemini": {
+    "apiKey": "",
+    "proxy": "http://127.0.0.1:10080",
+    "textModel": "gemini-3.5-flash",
+    "ttsModel": "gemini-3.8-flash-tts"
+  },
+
+  "_pixivic": "可选：pixivic 镜像需要 token，没有就只用 pixiv 官方通道",
+  "pixivic": {
+    "token": ""
+  }
+}
