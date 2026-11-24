@@ -1,0 +1,10 @@
+﻿{
+  "name": "qq-content",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server providing 61 content/media/office tools for a DSH QQ bot",
+  "dependencies": {
+    "undici": "^7.16.0"
+  }
+}

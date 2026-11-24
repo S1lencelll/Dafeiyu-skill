@@ -1,29 +1,34 @@
-# qq-content-toolkit · 一份 QQ 机器人工具层的地图
+# qq-content-toolkit · 让 QQ 机器人会干活
 
-在 [DeepSeek Harness](https://github.com/deepseek-ai) + [qq-bridge](https://github.com/Derpyu520/qq-bridge) 上跑了几个月 QQ 机器人，
-把「除了聊天还能干什么」这件事整理成了一份 **agent skill**。
+在 [DeepSeek Harness](https://github.com/deepseek-ai) + [qq-bridge](https://github.com/Derpyu520/qq-bridge) 上跑出来的
+一套 **MCP 工具集**：**61 个工具**，把 agent 从"会聊天"变成"能干活"。
 
-**这个仓库只有文档，没有实现代码。** 分享的是：
-63 个工具各自该怎么设计、参数怎么定、提示词怎么写才不会乱调用，以及一路踩过的坑。
+bridge 管「什么时候说话」，这套东西管「说完能做什么」。
 
 ---
 
 ## 里面有什么
 
-| 文件 | 给谁看 | 内容 |
-|---|---|---|
-| **[SKILL.md](SKILL.md)** | **agent** | 完整的操作指南：工具地图（按"你想干什么"查）、五个复杂工具的用法、8 个坑、验证清单。放进 `~/.agents/skills/` 后，agent 遇到相关问题会自动加载 |
-| **[config.example.json](config.example.json)** | 人 | 配置模板（OneBot 端点、可选的外部 API） |
+```
+code/                  MCP server 本体 + 15 个 python 脚本
+  server.mjs           61 个工具的注册与实现
+  chart_gen.py         数据图表（matplotlib）
+  office_fill.py       Word/Excel 模板填表
+  office_make.py       PPTX/DOCX 生成引擎
+  doc_extract.py       pdf/docx/xlsx 文本抽取
+  memory.mjs           记忆 LOD 读写
+  doujin.mjs booru.mjs 图源适配
+  …（其余见目录）
 
-`SKILL.md` 开头的 frontmatter 写了详细触发词，覆盖：
-「机器人能干什么」「加个查 B 站的功能」「怎么让它做 PPT」「画个柱状图」
-「帮我填这个表」「今天有啥课」「WBG 赛程」「识别这张图是哪个番」「视频讲了什么」。
+SKILL.md               给 agent 看的操作指南（放进 ~/.agents/skills/ 自动加载）
+config.example.json    配置模板
+```
 
 ---
 
-## 覆盖了什么能力
+## 能干什么
 
-| 分类 | 能力 |
+| 分类 | 工具 |
 |---|---|
 | **B站** | 搜视频/专栏 · 读专栏全文 · 推荐 · 动态 · 回评论 · 私信 |
 | **图片表情** | 收藏表情管理 · 发表情 · 偷表情 · 图库 · 随机图 · 搜网图 · AI 画图 · 梗图加字 |
@@ -35,51 +40,88 @@
 | **QQ 社交** | 短语音 · 定时提醒 · 空间动态 · 媒体解析（文件补后缀 / 图片取公网 URL） |
 | **日常** | 课表与 DDL · 电竞赛程 · 运势骰子 · 热搜梗 · 识番 · 查漫画 · 视频抽帧与转写 |
 
----
-
-## 前提
-
-这份文档假设你已经有：
-
-```
-QQ → SnowLuma（OneBot）→ qq-bridge → DSH
-```
-
-这条链路。怎么搭见
-[qq-bridge-setup](https://github.com/Derpyu520/qq-bridge)（bridge 自己的 README 与 docs 更全）。
-
-要落成代码，需要：
-
-| | 版本 | 用途 |
-|---|---|---|
-| Node | ≥ 22 | MCP server |
-| Python | ≥ 3.10 | 图表 / 填表 / PPT / 文档抽取 |
-| ffmpeg | any | 视频抽帧、音频转码 |
-
-Python 包：`matplotlib` `python-docx` `openpyxl` `python-pptx` `Pillow`。
-
-**一个 MCP server 就是 `stdio` 上跑一个 Node 进程**，把工具名单和参数 schema 吐给 DSH 就行，
-不需要框架。`SKILL.md` 里每个工具都写了参数形状，照着实现即可。
+每个工具的参数、什么时候该用、什么时候不该用，都写在 [SKILL.md](SKILL.md)。
 
 ---
 
-## 怎么用
+## 安装
+
+**前提**：已经跑通 `QQ → SnowLuma(OneBot) → qq-bridge → DSH`。
+怎么搭见 [qq-bridge 的 README](https://github.com/Derpyu520/qq-bridge)。
 
 ```bash
-# 放进 agent 的 skill 目录，之后遇到相关问题会自动加载
-cp -r . ~/.agents/skills/qq-content-toolkit/
+git clone https://github.com/S1lencelll/Dafeiyu-skill.git
+cd Dafeiyu-skill/code
+npm install                                  # 只有一个依赖 undici
 
-# 或者直接把 SKILL.md 丢给 agent 让它读
+pip install matplotlib python-docx openpyxl python-pptx Pillow
+# 还需要 ffmpeg（视频抽帧、音频转码）
+```
+
+在 DSH profile 里注册：
+
+```yaml
+# ~/.dsh/profiles/<profile>/cordis.patch.yml
+- insert:
+    - id: mcp-qq-content
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: qq-content
+        transport: stdio
+        command: 'node'
+        args: ['/绝对路径/Dafeiyu-skill/code/server.mjs']
+        toolCallTimeoutMs: 725000
+```
+
+重启 DSH，验证：
+
+```bash
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"v","version":"1"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | node code/server.mjs
+# 期望 result.tools 里有 61 个
 ```
 
 ---
 
-## 三个最值得抄的设计
+## 配置
+
+工具不需要自己的配置文件——**OneBot 端点直接用 qq-bridge 的 `config.json`**（默认找同级 `../qq-bridge/`，
+可用环境变量 `QQ_BRIDGE_CONFIG` 指到别处）。
+
+它只额外读这几个**可选**文件（不放也能跑，对应功能不亮）：
+
+| 文件 | 用途 |
+|---|---|
+| `imagegen.json` | AI 画图供应商（默认 Pollinations 免费通道） |
+| `gemini.json` | Gemini TTS 音色（需要能访问 Google） |
+| `pixivic.json` | pixivic 镜像 token |
+| `bili-account.json` | B站登录态（`bili_login` 扫码后自动生成） |
+
+模板见 [config.example.json](config.example.json)。**这些文件都在 `.gitignore` 里，不会被误提交。**
+
+---
+
+## 路径约定
+
+代码里**没有写死部署位置**：
+
+```js
+const ROOT = dirname(fileURLToPath(import.meta.url));   // 本文件所在目录
+const BRIDGE_CONFIG = process.env.QQ_BRIDGE_CONFIG || joinPath(ROOT, '..', 'qq-bridge', 'config.json');
+const PY = process.env.QQ_CONTENT_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
+```
+
+数据目录（`memory/`、`diary/`、`gen/`、`doc-tmp/`）都相对 `ROOT` 自动创建。
+换机器、换目录都不用改代码。
+
+---
+
+## 三个值得抄的设计
 
 **1. 工具描述里必须写"什么时候别用"**
 不只写参数，还要写失败模式。比如图表工具的描述末尾是：
 
-> 严禁用 `image_generate` 画数据图表；返回后必须消化成 1 句短气泡点出核心结论，禁止输出 JSON 原文。
+> 严禁用 `image_generate` 画数据图表；返回后必须消化成 1 句简短回复点出核心结论，禁止输出 JSON 原文。
 
 模型会照描述行事。只写"能画图表"的后果是它拿 AI 绘画去画 PPT 里的柱状图——数字全是编的。
 
@@ -102,8 +144,13 @@ cp -r . ~/.agents/skills/qq-content-toolkit/
 
 ---
 
+## 关于人设
+
+这个仓库**只提供工具能力**，不含角色设定、称呼、语气规范。
+工具返回语都是中性的（"用简短口语点评"），怎么说话由你自己的 preset 决定。
+
+---
+
 ## 许可
 
-文档 MIT（[LICENSE](LICENSE)），随便拿走改。
-
-提到的上游项目各自遵循其许可。
+代码与文档 MIT（[LICENSE](LICENSE)）。依赖的上游项目各自遵循其许可。

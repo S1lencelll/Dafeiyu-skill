@@ -1,4 +1,4 @@
-# ── 敏感配置：绝对不要提交 ──
+﻿# 鈹€鈹€ 鏁忔劅閰嶇疆锛氱粷瀵逛笉瑕佹彁浜?鈹€鈹€
 config.json
 config.json.bak*
 gemini.json
@@ -6,7 +6,7 @@ gemini.json
 *.key
 .credentials*
 
-# ── 运行时数据（含真实聊天记录 / 记忆 / 隐私）──
+# 鈹€鈹€ 杩愯鏃舵暟鎹紙鍚湡瀹炶亰澶╄褰?/ 璁板繂 / 闅愮锛夆攢鈹€
 state/
 logs/
 *.log
@@ -21,7 +21,7 @@ asr/
 audio/
 worlds/
 
-# ── 产出物 ──
+# 鈹€鈹€ 浜у嚭鐗?鈹€鈹€
 *.pptx
 *.docx
 *.xlsx
@@ -32,10 +32,15 @@ worlds/
 *.mp3
 *.mp4
 
-# ── 依赖与临时 ──
+# 鈹€鈹€ 渚濊禆涓庝复鏃?鈹€鈹€
 node_modules/
 *.bak*
 *.tmp
 .DS_Store
 Thumbs.db
 tools.json
+
+# ── Python 缓存 ──
+__pycache__/
+*.pyc
+*.pyo

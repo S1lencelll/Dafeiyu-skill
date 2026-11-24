@@ -1,6 +1,6 @@
 ﻿---
 name: qq-content-toolkit
-description: 给 DSH QQ 机器人装一套 63 个工具的 MCP（qq-content）：B站搜索/专栏/动态/三连、图片与表情包、Pixiv 与本子、音乐点播、LOD 记忆、跨会话检索、网页抓取、PPT 生成、数据图表、Word/Excel 模板填表、课表 DDL、电竞赛程、QQ 空间动态、视频抽帧与转写、识番识漫画。用户说「机器人能干什么」「加个查 B 站的功能」「怎么让它做 PPT」「画个柱状图」「帮我填这个表」「今天有啥课」「WBG 赛程」「发个表情包」「识别这张图是哪个番」「视频讲了什么」时加载。也用于排障：工具注册了但不出现、python 依赖缺失、中文图表乱码、填表丢格式。
+description: 给 DSH QQ 机器人装一套 61 个工具的 MCP（qq-content）：B站搜索/专栏/动态/三连、图片与表情包、Pixiv 与本子、音乐点播、LOD 记忆、跨会话检索、网页抓取、PPT 生成、数据图表、Word/Excel 模板填表、课表 DDL、电竞赛程、QQ 空间动态、视频抽帧与转写、识番识漫画。用户说「机器人能干什么」「加个查 B 站的功能」「怎么让它做 PPT」「画个柱状图」「帮我填这个表」「今天有啥课」「WBG 赛程」「发个表情包」「识别这张图是哪个番」「视频讲了什么」时加载。也用于排障：工具注册了但不出现、python 依赖缺失、中文图表乱码、填表丢格式。
 ---
 
 # 给 QQ 机器人装一套能干活的工具
@@ -38,10 +38,10 @@ qq-bridge 解决"能不能说话"，这一层解决"能干什么"。
 
 ---
 
-## 接入五步（自己写 MCP server）
+## 接入五步
 
-**这个 skill 不含实现代码**，只有一个 MCP server 的骨架和每个工具的参数约定。
-照着填就行——MCP server 没有框架，就是一个 `stdio` 上跑的 Node 进程。
+实现放在本仓库的 `code/` 目录，MCP server 没有框架——就是一个 `stdio` 上跑的 Node 进程。
+下面是它的骨架，方便你读懂或自己改。
 
 ```js
 // server.mjs 的最小骨架
@@ -50,7 +50,7 @@ import { createInterface } from 'node:readline';
 const TOOLS = [
   { name: 'chart_generator', description: '...', inputSchema: {...}, run: chartGenerator },
   { name: 'office_template_filler', description: '...', inputSchema: {...}, run: officeFiller },
-  // …63 个
+  // …61 个
 ];
 
 const rl = createInterface({ input: process.stdin });
@@ -106,7 +106,7 @@ systemctl restart dsh-server      # 或你启动 DSH 的方式
 # 5. 验证工具清单
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"v","version":"1"}}}
 {"jsonrpc":"2.0","id":2,"method":"tools/list"}' | node server.mjs
-# 期望看到 result.tools 里有你要的 63 个
+# 期望看到 result.tools 里有 61 个
 ```
 
 **第 3、4 步最容易漏**：只启动 server.mjs 不注册 MCP，agent 手上一个工具都没有（不报错，只是问它什么都说不会）。
@@ -319,7 +319,7 @@ cards:
 5. **python 依赖缺失不报错，只在调用时炸**。启动时能跑不代表能干活——
    装完依赖一定逐个工具试一次。
 
-6. **工具数对不上就是没注册上**。`tools/list` 返回 63 个才叫装好；
+6. **工具数对不上就是没注册上**。`tools/list` 返回 61 个才叫装好；
    少几个通常是 description 里有多余的换行或引号，把 JSON 结构破坏了。
 
 7. **改完 server.mjs 必须重启 DSH**。MCP 是 DSH 的子进程，文件变了进程里还是旧代码。
@@ -331,7 +331,7 @@ cards:
 ## 装完的验证清单
 
 ```text
-□ tools/list 返回 63 个工具
+□ tools/list 返回 61 个工具
 □ chart_generator 出一张含中文的图，数字对得上
 □ office_template_filler 对一份 .docx 做 inspect，能看到占位符
 □ read_file 读一份 pdf，能抽出正文
