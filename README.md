@@ -3,7 +3,7 @@
 在 [DeepSeek Harness](https://github.com/deepseek-ai) + [qq-bridge](https://github.com/Derpyu520/qq-bridge) 上跑出来的
 一套 **MCP 工具集**：**61 个工具**，把 agent 从"会聊天"变成"能干活"。
 
-bridge 管「什么时候说话」，这套东西管「说完能做什么」。
+
 
 ---
 
